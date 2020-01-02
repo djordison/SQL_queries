@@ -34,7 +34,9 @@ SELECT ex.experiment,
        ex.occurred_at AS treatment_start,
        u.user_id,
        u.activated_at,
-       COUNT(CASE WHEN e.event_name = 'send_message' THEN e.user_id ELSE NULL END) AS metric
+       COUNT(CASE WHEN e.event_name = 'login' THEN e.user_id ELSE NULL END) AS metric
+       -- COUNT(DISTINCT DATE_TRUNCH('day', e.occurred_at)) AS metric --- days logged in?
+       -- could also use send_message, login,  as a metric  
   FROM (SELECT user_id,
                experiment,
                experiment_group,
@@ -44,6 +46,8 @@ SELECT ex.experiment,
        ) ex
   JOIN tutorial.yammer_users u
     ON u.user_id = ex.user_id
+    --- way to subset users, below is only for existing users
+   AND u.activated_at < '2014-06-01'
   JOIN tutorial.yammer_events e
     ON e.user_id = ex.user_id
    AND e.occurred_at >= ex.occurred_at
